@@ -40,6 +40,7 @@ services:
       JWT_SECRET: "VerySecretKeyThatShouldBeReplacedWithEnvVariable1234567890"
       JWT_EXPIRATION_MS: "86400000"
     logging:
+      driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
@@ -54,10 +55,6 @@ services:
       - backend
     ports:
       - "5174:80"
-    # If you want environment variables baked into the frontend during build,
-    # add them here as a proper mapping (key: value). Example:
-    # environment:
-    #   VITE_API_BASE: "http://localhost:8082/api"
 
 volumes:
   db_data:
