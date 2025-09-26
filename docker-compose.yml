@@ -21,7 +21,7 @@ services:
 
   backend:
     build:
-      context: ./expense-tracker-backend
+      context: ./project_backend
       dockerfile: Dockerfile
     container_name: et-backend
     depends_on:
@@ -47,7 +47,7 @@ services:
 
   frontend:
     build:
-      context: ./expense-tracker-frontend
+      context: ./project_frontend
       dockerfile: Dockerfile
     container_name: et-frontend
     restart: unless-stopped
