@@ -21,7 +21,7 @@ services:
 
   backend:
     build:
-      context: ./project_backend
+      context: ./Dockerfile.backend
       dockerfile: Dockerfile
     container_name: et-backend
     depends_on:
@@ -47,7 +47,7 @@ services:
 
   frontend:
     build:
-      context: ./project_frontend
+      context: ./Dockerfile.frontend
       dockerfile: Dockerfile
     container_name: et-frontend
     restart: unless-stopped
