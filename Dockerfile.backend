@@ -1,25 +1,25 @@
-# Stage 1: Build with Maven and Java 21
+##### Stage 1: Build with Maven and Java 21 #####
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Install git to allow repo cloning
+# Install git
 RUN apt-get update && apt-get install -y git
 
-# Clone your backend repo
+# Clone backend repo
 RUN git clone https://github.com/Manognabandi21/project_backend.git .
 
 # Build the jar
 RUN mvn clean package -DskipTests
 
-# Stage 2: Runtime image (run the Spring Boot fat JAR)
+##### Stage 2: Runtime image #####
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 
-# Copy the built jar from the build stage
+# Copy the jar
 COPY --from=build /app/target/*.jar app.jar
 
-# Expose port (your app uses 8082)
+# Expose backend port
 EXPOSE 8082
 
-# Run the jar (accept SERVER_PORT env override)
+# Run Spring Boot jar
 ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar --server.port=${SERVER_PORT:-8082}"]
