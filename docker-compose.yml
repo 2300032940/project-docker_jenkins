@@ -1,60 +1,63 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
     image: mysql:8.0
-    container_name: ecommerce-db1
-    restart: always
+    container_name: et-mysql
+    restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ecommerce
-      MYSQL_ROOT_PASSWORD: 1357
-    ports:
-      - "3307:3306"
+      MYSQL_ROOT_PASSWORD: "Manognabandi@21"
+      MYSQL_DATABASE: "expense_db"
+      MYSQL_ROOT_HOST: "%"
     volumes:
       - db_data:/var/lib/mysql
-    networks:
-      - ecommerce-net
+    ports:
+      - "3306:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-p1357"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.backend
-    container_name: ecommerce-backend1
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ecommerce
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 1357
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      context: ./expense-tracker-backend
+      dockerfile: Dockerfile
+    container_name: et-backend
     depends_on:
       db:
         condition: service_healthy
+    restart: on-failure
     ports:
-      - "8083:8080"
-    networks:
-      - ecommerce-net
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/expense_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "root"
+      SPRING_DATASOURCE_PASSWORD: "Manognabandi@21"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+      SPRING_JPA_SHOW_SQL: "true"
+      SERVER_PORT: "8082"
+      JWT_SECRET: "VerySecretKeyThatShouldBeReplacedWithEnvVariable1234567890"
+      JWT_EXPIRATION_MS: "86400000"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: ecommerce-frontend1
-    restart: always
-    ports:
-      - "8082:8080"
+      context: ./expense-tracker-frontend
+      dockerfile: Dockerfile
+    container_name: et-frontend
+    restart: unless-stopped
     depends_on:
       - backend
-    networks:
-      - ecommerce-net
+    ports:
+      - "5174:80"
+    # If you want environment variables baked into the frontend during build,
+    # add them here as a proper mapping (key: value). Example:
+    # environment:
+    #   VITE_API_BASE: "http://localhost:8082/api"
 
 volumes:
   db_data:
-
-networks:
-  ecommerce-net:
-    driver: bridge
