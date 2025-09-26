@@ -21,8 +21,8 @@ services:
 
   backend:
     build:
-      context: ./Dockerfile.backend
-      dockerfile: Dockerfile
+      context: .          # <-- repo root as context
+      dockerfile: Dockerfile.backend  # <-- explicit Dockerfile
     container_name: et-backend
     depends_on:
       db:
@@ -47,8 +47,8 @@ services:
 
   frontend:
     build:
-      context: ./Dockerfile.frontend
-      dockerfile: Dockerfile
+      context: .          # <-- repo root as context
+      dockerfile: Dockerfile.frontend  # <-- explicit Dockerfile
     container_name: et-frontend
     restart: unless-stopped
     depends_on:
