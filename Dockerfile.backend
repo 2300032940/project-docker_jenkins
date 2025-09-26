@@ -1,24 +1,25 @@
-    # Stage 1: Build with Maven and Java 21
-    FROM maven:3.9.6-eclipse-temurin-21 AS build
+# Stage 1: Build with Maven and Java 21
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /app
 
-    WORKDIR /app
-    
-    # Install git to allow repo cloning
-    RUN apt-get update && apt-get install -y git
-    
-    # Clone your backend repo
-    RUN git clone https://github.com/Manognabandi21/project_backend.git .
+# Install git to allow repo cloning
+RUN apt-get update && apt-get install -y git
 
-    RUN mvn clean package -DskipTests
+# Clone your backend repo
+RUN git clone https://github.com/Manognabandi21/project_backend.git .
 
-    # Stage 2: Run with Tomcat
-    FROM tomcat:9.0-jdk17-temurin
+# Build the jar
+RUN mvn clean package -DskipTests
 
-    # Remove default apps
-    RUN rm -rf /usr/local/tomcat/webapps/*
+# Stage 2: Runtime image (run the Spring Boot fat JAR)
+FROM eclipse-temurin:21-jre
+WORKDIR /app
 
-    # Copy backend WAR to Tomcat
-    COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/back1.war
+# Copy the built jar from the build stage
+COPY --from=build /app/target/*.jar app.jar
 
-    EXPOSE 8082
-    CMD ["catalina.sh", "run"]    
+# Expose port (your app uses 8082)
+EXPOSE 8082
+
+# Run the jar (accept SERVER_PORT env override)
+ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar --server.port=${SERVER_PORT:-8082}"]
